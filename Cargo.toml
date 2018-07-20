@@ -1,0 +1,9 @@
+[package]
+name = "rust-pwclip"
+version = "0.1.0"
+authors = ["Henry Till <henrytill@gmail.com>"]
+
+[dependencies]
+hmac-drbg = "0.1.2"
+sha2 = "0.6.0"
+typenum = "1.9"

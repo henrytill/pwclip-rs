@@ -7,3 +7,4 @@ authors = ["Henry Till <henrytill@gmail.com>"]
 hmac-drbg = "0.1.2"
 sha2 = "0.6.0"
 typenum = "1.9"
+unicode-segmentation = "1.2.1"

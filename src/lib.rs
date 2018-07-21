@@ -24,7 +24,7 @@ pub const CHARSET_ALPHANUMERIC: &str =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 impl<'a> PWM<'a> {
-    pub fn get_password(&self, key: &[u8]) -> String {
+    pub fn password(&self, key: &[u8]) -> String {
         let mut drbg = HmacDRBG::<Sha512>::new(key, &[], &[]);
         drbg.reseed(self.url.as_bytes(), None);
         drbg.reseed(self.username.as_bytes(), None);
@@ -175,7 +175,7 @@ mod test {
     fn test_passwords() {
         for test in PASSWORD_TESTS.iter() {
             for (k, expected) in test.pws.iter().enumerate() {
-                let actual = test.pwm.get_password(PASSWORD_TEST_KEYS[k].as_bytes());
+                let actual = test.pwm.password(PASSWORD_TEST_KEYS[k].as_bytes());
                 assert_eq!(expected, &actual);
             }
         }

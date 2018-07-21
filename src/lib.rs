@@ -1,9 +1,12 @@
+extern crate data_encoding;
 extern crate hmac_drbg;
+extern crate rust_scrypt;
 extern crate sha2;
 extern crate typenum;
 extern crate unicode_segmentation;
 
 use hmac_drbg::HmacDRBG;
+use rust_scrypt::*;
 use sha2::Sha512;
 use typenum::U64;
 use unicode_segmentation::UnicodeSegmentation;
@@ -46,9 +49,17 @@ impl<'a> PWM<'a> {
     }
 }
 
+pub fn key(passphrase: &[u8]) -> [u8; 32] {
+    let params = ScryptParams::new(2 << 15, 8, 1);
+    let mut buf = [0u8; 32];
+    scrypt(passphrase, b"pwclip", &params, &mut buf);
+    buf
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
+    use data_encoding::HEXLOWER;
 
     struct Test<'a> {
         pwm: PWM<'a>,
@@ -167,6 +178,59 @@ mod test {
                 let actual = test.pwm.get_password(PASSWORD_TEST_KEYS[k].as_bytes());
                 assert_eq!(expected, &actual);
             }
+        }
+    }
+
+    struct KeyTest<'a> {
+        passphrase: &'a [u8],
+        keyhex: &'a [u8],
+    }
+
+    const KEY_TESTS: [KeyTest; 9] = [
+        KeyTest {
+            passphrase: &[],
+            keyhex: b"cf4b3589438e51bfc0f942ca1f2b108d5a9e5a9238c15a2e76ab764484e636bd",
+        },
+        KeyTest {
+            passphrase: &[0u8],
+            keyhex: b"cf4b3589438e51bfc0f942ca1f2b108d5a9e5a9238c15a2e76ab764484e636bd",
+        },
+        KeyTest {
+            passphrase: &[1u8],
+            keyhex: b"cdbc42a4bf57aad0b0a4a86d3bb654e57bc356bd08d5de88a6548a3a031fc87e",
+        },
+        KeyTest {
+            passphrase: &[1u8, 0u8],
+            keyhex: b"cdbc42a4bf57aad0b0a4a86d3bb654e57bc356bd08d5de88a6548a3a031fc87e",
+        },
+        KeyTest {
+            passphrase: &[1u8, 0u8, 1u8],
+            keyhex: b"aac60e84780340d5e7065a27a7189e240f8777b1b7ac2144e9d9e4d93a599c53",
+        },
+        KeyTest {
+            passphrase: &[0u8, 1u8],
+            keyhex: b"a35b6569ec9ac21d16c43db825436e92b5a23b6288e17503664962f148e72101",
+        },
+        KeyTest {
+            passphrase: &[0u8, 0u8, 1u8],
+            keyhex: b"df71d36f29d13211d9f74e77828cdc1c83e41a3a5407bc231bdca2d1504b1544",
+        },
+        KeyTest {
+            passphrase: b"passphrase",
+            keyhex: b"40f2dacf5fdb770dc6e047f41883ff71ec3972aa7ac92d1792dd2909f2453324",
+        },
+        KeyTest {
+            passphrase: b"another passphrase",
+            keyhex: b"2aaf56826d42fdcbe6ae5653f50b10fc47748d8c2b3e36515bb01078c7c8f535",
+        },
+    ];
+
+    #[test]
+    fn test_keys() {
+        for test in KEY_TESTS.iter() {
+            let actual = key(test.passphrase);
+            let expected = HEXLOWER.decode(test.keyhex).unwrap();
+            assert_eq!(expected, actual);
         }
     }
 }

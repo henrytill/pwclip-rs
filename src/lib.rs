@@ -2,12 +2,14 @@ extern crate data_encoding;
 extern crate hmac_drbg;
 extern crate rust_scrypt;
 extern crate sha2;
+extern crate toml;
 extern crate typenum;
 extern crate unicode_segmentation;
 
 use hmac_drbg::HmacDRBG;
 use rust_scrypt::*;
 use sha2::Sha512;
+use toml::Value;
 use typenum::U64;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -20,10 +22,48 @@ pub struct PWM<'a> {
     pub length: usize,
 }
 
+pub const DEFAULT_LENGTH: usize = 24;
+
 pub const CHARSET_ALPHANUMERIC: &str =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 impl<'a> PWM<'a> {
+    pub fn from_value(value: &'a Value) -> Result<PWM<'a>, &'static str> {
+        let url = value
+            .get("url")
+            .and_then(|v| v.as_str())
+            .ok_or("no valid url")?;
+
+        let username = value
+            .get("username")
+            .and_then(|v| v.as_str())
+            .ok_or("no valid username")?;
+
+        let extra = value.get("extra").and_then(|v| v.as_str());
+
+        let prefix = value.get("prefix").and_then(|v| v.as_str()).unwrap_or("");
+
+        let length = value
+            .get("length")
+            .and_then(|v| v.as_integer())
+            .map(|i| i as usize)
+            .unwrap_or(DEFAULT_LENGTH);
+
+        let charset = value
+            .get("charset")
+            .and_then(|v| v.as_str())
+            .unwrap_or(CHARSET_ALPHANUMERIC);
+
+        Ok(PWM {
+            url,
+            username,
+            extra,
+            prefix,
+            charset,
+            length,
+        })
+    }
+
     pub fn password(&self, key: &[u8]) -> String {
         let mut drbg = HmacDRBG::<Sha512>::new(key, &[], &[]);
         drbg.reseed(self.url.as_bytes(), None);
@@ -232,5 +272,17 @@ mod test {
             let expected = HEXLOWER.decode(test.keyhex).unwrap();
             assert_eq!(expected, actual);
         }
+    }
+
+    #[test]
+    fn construct_pwm_test() {
+        let config = r#"
+            url = 'example.com'
+            username = 'example@example.com'
+        "#;
+
+        let value: Value = config.parse::<Value>().unwrap();
+        let pwm = PWM::from_value(&value).unwrap();
+        assert_eq!(pwm.url, "example.com");
     }
 }

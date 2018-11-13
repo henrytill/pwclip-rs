@@ -32,16 +32,16 @@ impl<'a> PWM<'a> {
             drbg.reseed(extra.as_bytes(), None);
         }
 
-        let charset_graphemes: Vec<&str> = self.charset.graphemes(true).collect();
-        let charset_len: usize = charset_graphemes.len();
-        let m: usize = 256 % charset_len;
-
-        let chars: String = drbg.generate::<U64>(None)
-            .into_iter()
-            .filter(|r| (*r as usize) < 256 - m)
-            .map(|r| charset_graphemes[r as usize % charset_len])
-            .take(self.length - self.prefix.len())
-            .collect();
+        let chars: String = {
+            let charset_graphemes: Vec<&str> = self.charset.graphemes(true).collect();
+            let charset_len: usize = charset_graphemes.len();
+            drbg.generate::<U64>(None)
+                .into_iter()
+                .filter(|r| (*r as usize) < 256 - (256 % charset_len))
+                .map(|r| charset_graphemes[r as usize % charset_len])
+                .take(self.length - self.prefix.len())
+                .collect()
+        };
 
         let mut password: String = self.prefix.to_owned();
         password.push_str(&chars);

@@ -13,6 +13,7 @@ use toml::Value;
 use typenum::U64;
 use unicode_segmentation::UnicodeSegmentation;
 
+#[derive(Debug)]
 pub struct PWM<'a> {
     pub url: &'a str,
     pub username: &'a str,
@@ -100,6 +101,7 @@ pub fn key(passphrase: &[u8]) -> [u8; 32] {
 mod test {
     use super::*;
     use data_encoding::HEXLOWER;
+    use toml::Value::Table;
 
     struct Test<'a> {
         pwm: PWM<'a>,
@@ -277,12 +279,26 @@ mod test {
     #[test]
     fn construct_pwm_test() {
         let config = r#"
+            [example]
             url = 'example.com'
             username = 'example@example.com'
         "#;
 
-        let value: Value = config.parse::<Value>().unwrap();
-        let pwm = PWM::from_value(&value).unwrap();
-        assert_eq!(pwm.url, "example.com");
+        if let Table(parsed) = config.parse::<Value>().unwrap() {
+            println!("{:?}", parsed);
+
+            let res = {
+                let mut ret = vec![];
+                for (_, value) in &parsed {
+                    let pwm = PWM::from_value(&value).unwrap();
+                    ret.push(pwm);
+                }
+                ret
+            };
+
+            println!("{:?}", res);
+        }
+
+        // assert_eq!(pwm.url, "example.com");
     }
 }

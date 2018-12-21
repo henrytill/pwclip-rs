@@ -7,7 +7,7 @@ extern crate typenum;
 extern crate unicode_segmentation;
 
 use hmac_drbg::HmacDRBG;
-use rust_scrypt::*;
+use rust_scrypt::{scrypt, ScryptParams};
 use sha2::Sha512;
 use toml::Value;
 use typenum::U64;

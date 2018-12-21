@@ -1,3 +1,5 @@
+extern crate clear_on_drop;
+#[cfg(test)]
 extern crate data_encoding;
 extern crate hmac_drbg;
 extern crate rust_scrypt;
@@ -6,6 +8,7 @@ extern crate toml;
 extern crate typenum;
 extern crate unicode_segmentation;
 
+use clear_on_drop::clear::Clear;
 use hmac_drbg::HmacDRBG;
 use rust_scrypt::{scrypt, ScryptParams};
 use sha2::Sha512;
@@ -19,6 +22,12 @@ const CHARSET_ALPHANUMERIC: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 #[derive(Debug, PartialEq)]
 pub struct Password(String);
+
+impl Drop for Password {
+    fn drop(&mut self) {
+        self.0.clear();
+    }
+}
 
 #[derive(Debug)]
 pub struct PWM<'a> {
@@ -113,6 +122,12 @@ impl Into<[u8; 32]> for Key {
 impl Into<Vec<u8>> for Key {
     fn into(self) -> Vec<u8> {
         self.0.to_vec()
+    }
+}
+
+impl Drop for Key {
+    fn drop(&mut self) {
+        self.0.clear();
     }
 }
 

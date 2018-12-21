@@ -92,11 +92,28 @@ impl<'a> PWM<'a> {
     }
 }
 
-pub fn key(passphrase: &[u8]) -> [u8; 32] {
-    let params = ScryptParams::new(2 << 15, 8, 1);
-    let mut buf = [0u8; 32];
-    scrypt(passphrase, b"pwclip", &params, &mut buf);
-    buf
+#[derive(Debug)]
+pub struct Key([u8; 32]);
+
+impl Key {
+    pub fn new(passphrase: &[u8]) -> Key {
+        let params = ScryptParams::new(2 << 15, 8, 1);
+        let mut buf = [0u8; 32];
+        scrypt(passphrase, b"pwclip", &params, &mut buf);
+        Key(buf)
+    }
+}
+
+impl Into<[u8; 32]> for Key {
+    fn into(self) -> [u8; 32] {
+        self.0
+    }
+}
+
+impl Into<Vec<u8>> for Key {
+    fn into(self) -> Vec<u8> {
+        self.0.to_vec()
+    }
 }
 
 #[cfg(test)]
@@ -272,7 +289,7 @@ mod test {
     #[test]
     fn test_keys() {
         for test in KEY_TESTS.iter() {
-            let actual = key(test.passphrase);
+            let actual: Vec<u8> = Key::new(test.passphrase).into();
             let expected = HEXLOWER.decode(test.keyhex).unwrap();
             assert_eq!(expected, actual);
         }

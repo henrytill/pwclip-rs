@@ -19,12 +19,12 @@ const CHARSET_ALPHANUMERIC: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 
 #[derive(Debug)]
 pub struct PWM<'a> {
-    pub url: &'a str,
-    pub username: &'a str,
-    pub extra: Option<&'a str>,
-    pub prefix: &'a str,
-    pub charset: &'a str,
-    pub length: usize,
+    url: &'a str,
+    username: &'a str,
+    extra: Option<&'a str>,
+    prefix: &'a str,
+    charset: &'a str,
+    length: usize,
 }
 
 impl<'a> PWM<'a> {

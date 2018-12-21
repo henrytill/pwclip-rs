@@ -13,6 +13,10 @@ use toml::Value;
 use typenum::U64;
 use unicode_segmentation::UnicodeSegmentation;
 
+const DEFAULT_LENGTH: usize = 24;
+
+const CHARSET_ALPHANUMERIC: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
 #[derive(Debug)]
 pub struct PWM<'a> {
     pub url: &'a str,
@@ -22,11 +26,6 @@ pub struct PWM<'a> {
     pub charset: &'a str,
     pub length: usize,
 }
-
-pub const DEFAULT_LENGTH: usize = 24;
-
-pub const CHARSET_ALPHANUMERIC: &str =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 impl<'a> PWM<'a> {
     pub fn from_value(value: &'a Value) -> Result<PWM<'a>, &'static str> {

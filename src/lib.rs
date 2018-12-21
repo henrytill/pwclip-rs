@@ -17,6 +17,9 @@ const DEFAULT_LENGTH: usize = 24;
 
 const CHARSET_ALPHANUMERIC: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+#[derive(Debug, PartialEq)]
+pub struct Password(String);
+
 #[derive(Debug)]
 pub struct PWM<'a> {
     url: &'a str,
@@ -64,7 +67,7 @@ impl<'a> PWM<'a> {
         })
     }
 
-    pub fn password(&self, key: &[u8]) -> String {
+    pub fn password(&self, key: &[u8]) -> Password {
         let mut drbg = HmacDRBG::<Sha512>::new(key, &[], &[]);
         drbg.reseed(self.url.as_bytes(), None);
         drbg.reseed(self.username.as_bytes(), None);
@@ -85,7 +88,7 @@ impl<'a> PWM<'a> {
 
         let mut password: String = self.prefix.to_owned();
         password.push_str(&chars);
-        password
+        Password(password)
     }
 }
 
@@ -217,7 +220,7 @@ mod test {
         for test in PASSWORD_TESTS.iter() {
             for (k, expected) in test.pws.iter().enumerate() {
                 let actual = test.pwm.password(PASSWORD_TEST_KEYS[k].as_bytes());
-                assert_eq!(expected, &actual);
+                assert_eq!(Password(expected.to_string()), actual);
             }
         }
     }

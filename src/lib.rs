@@ -56,7 +56,7 @@ impl Default for PWM {
 }
 
 impl PWM {
-    pub fn password(&self, key: &[u8]) -> Password {
+    fn password_raw(&self, key: &[u8]) -> Password {
         let mut drbg = HmacDRBG::<Sha512>::new(key, &[], &[]);
         drbg.reseed(self.url.as_bytes(), None);
         drbg.reseed(self.username.as_bytes(), None);
@@ -78,6 +78,10 @@ impl PWM {
         let mut password: String = self.prefix.to_owned();
         password.push_str(&chars);
         Password(password)
+    }
+
+    pub fn password(&self, key: Key) -> Password {
+        self.password_raw(&key.0)
     }
 }
 
@@ -237,7 +241,7 @@ mod test {
 
         for test in password_tests.iter() {
             for (k, expected) in test.pws.iter().enumerate() {
-                let actual = test.pwm.password(PASSWORD_TEST_KEYS[k].as_bytes());
+                let actual = test.pwm.password_raw(PASSWORD_TEST_KEYS[k].as_bytes());
                 assert_eq!(Password(expected.to_string()), actual);
             }
         }

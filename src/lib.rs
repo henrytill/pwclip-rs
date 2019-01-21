@@ -149,7 +149,7 @@ mod test {
 
     #[test]
     fn test_passwords() {
-        let password_tests: [Test; 7] = [
+        let password_tests = [
             Test {
                 pwm: PWM {
                     length: 32,
@@ -240,16 +240,17 @@ mod test {
         ];
 
         for test in password_tests.iter() {
-            for (k, expected) in test.pws.iter().enumerate() {
+            for (k, pw) in test.pws.iter().enumerate() {
+                let expected = Password(pw.to_string());
                 let actual = test.pwm.password_raw(PASSWORD_TEST_KEYS[k].as_bytes());
-                assert_eq!(Password(expected.to_string()), actual);
+                assert_eq!(expected, actual);
             }
         }
     }
 
     #[test]
     fn test_keys() {
-        let key_tests: [KeyTest; 9] = [
+        let key_tests = [
             KeyTest {
                 passphrase: &[],
                 keyhex: b"cf4b3589438e51bfc0f942ca1f2b108d5a9e5a9238c15a2e76ab764484e636bd",
@@ -289,8 +290,8 @@ mod test {
         ];
 
         for test in key_tests.iter() {
-            let actual: Vec<u8> = Key::new(test.passphrase).into();
             let expected = HEXLOWER.decode(test.keyhex).unwrap();
+            let actual: Vec<u8> = Key::new(test.passphrase).into();
             assert_eq!(expected, actual);
         }
     }
@@ -313,6 +314,8 @@ mod test {
                 let pwm: PWM = value.try_into().unwrap();
                 println!("{}: {:?}", key, pwm);
             }
+        } else {
+            panic!("Could not parse config");
         }
     }
 }

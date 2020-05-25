@@ -1,5 +1,5 @@
 [package]
-name = "rust-pwclip"
+name = "pwclip-rs"
 version = "0.1.0"
 authors = ["Henry Till <henrytill@gmail.com>"]
 

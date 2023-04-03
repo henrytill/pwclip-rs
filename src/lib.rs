@@ -7,6 +7,7 @@ extern crate hmac_drbg;
 extern crate rust_scrypt;
 extern crate serde;
 extern crate sha2;
+#[cfg(test)]
 extern crate toml;
 extern crate typenum;
 extern crate unicode_segmentation;

@@ -128,17 +128,9 @@ mod test {
 
     const PASSWORD_TEST_KEYS: [&str; 2] = ["", "secret key"];
 
-    macro_rules! test_url {
-        () => {
-            "example.com".to_string()
-        };
-    }
+    const TEST_URL: &str = "example.com";
 
-    macro_rules! test_username {
-        () => {
-            "example@example.com".to_string()
-        };
-    }
+    const TEST_USERNAME: &str = "example@example.com";
 
     struct Test<'a> {
         pwm: PWM,
@@ -165,8 +157,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     length: 32,
                     ..Default::default()
                 },
@@ -177,8 +169,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     length: 48,
                     ..Default::default()
                 },
@@ -189,8 +181,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     prefix: "foobar!".to_string(),
                     length: 32,
                     ..Default::default()
@@ -202,8 +194,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     extra: Some(EXTRA.to_string()),
                     length: 32,
                     ..Default::default()
@@ -215,8 +207,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     extra: None,
                     charset: "αβγδεζηθικλμνξοπρστυφχψω".to_string(),
                     length: 32,
@@ -229,8 +221,8 @@ mod test {
             },
             Test {
                 pwm: PWM {
-                    url: test_url!(),
-                    username: test_username!(),
+                    url: TEST_URL.to_string(),
+                    username: TEST_USERNAME.to_string(),
                     charset: "0⌘1".to_string(),
                     length: 32,
                     ..Default::default()

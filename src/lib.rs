@@ -1,3 +1,5 @@
+#[cfg(test)]
+extern crate anyhow;
 extern crate clear_on_drop;
 #[cfg(test)]
 extern crate data_encoding;
@@ -116,9 +118,11 @@ impl Drop for Key {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use anyhow::{anyhow, Result};
     use data_encoding::HEXLOWER;
     use toml::Value::{self, Table};
+
+    use super::*;
 
     const EXTRA: &str = "extra data";
 
@@ -248,7 +252,7 @@ mod test {
     }
 
     #[test]
-    fn test_keys() {
+    fn test_keys() -> Result<()> {
         let key_tests = [
             KeyTest {
                 passphrase: &[],
@@ -289,14 +293,16 @@ mod test {
         ];
 
         for test in key_tests.iter() {
-            let expected = HEXLOWER.decode(test.keyhex).unwrap();
+            let expected = HEXLOWER.decode(test.keyhex)?;
             let actual: Vec<u8> = Key::new(test.passphrase).into();
             assert_eq!(expected, actual);
         }
+
+        return Ok(());
     }
 
     #[test]
-    fn construct_pwm_test() {
+    fn construct_pwm_test() -> Result<()> {
         let config = r#"
             [example]
             url = 'example.com'
@@ -308,13 +314,14 @@ mod test {
             prefix = 'quux'
         "#;
 
-        if let Table(parsed) = config.parse::<Value>().unwrap() {
+        if let Table(parsed) = config.parse::<Value>()? {
             for (key, value) in parsed {
-                let pwm: PWM = value.try_into().unwrap();
+                let pwm: PWM = value.try_into()?;
                 println!("{}: {:?}", key, pwm);
             }
+            Ok(())
         } else {
-            panic!("Could not parse config");
+            Err(anyhow!("config is not a table"))
         }
     }
 }

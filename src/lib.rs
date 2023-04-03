@@ -4,8 +4,6 @@ extern crate data_encoding;
 extern crate hmac_drbg;
 extern crate rust_scrypt;
 extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 extern crate sha2;
 extern crate toml;
 extern crate typenum;
@@ -14,6 +12,7 @@ extern crate unicode_segmentation;
 use clear_on_drop::clear::Clear;
 use hmac_drbg::HmacDRBG;
 use rust_scrypt::{scrypt, ScryptParams};
+use serde::Deserialize;
 use sha2::Sha512;
 use typenum::U64;
 use unicode_segmentation::UnicodeSegmentation;
@@ -31,8 +30,8 @@ impl Drop for Password {
     }
 }
 
-#[serde(default)]
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 pub struct PWM {
     url: String,
     username: String,

@@ -96,15 +96,15 @@ impl Key {
     }
 }
 
-impl Into<[u8; 32]> for Key {
-    fn into(self) -> [u8; 32] {
-        self.0
+impl From<Key> for [u8; 32] {
+    fn from(key: Key) -> [u8; 32] {
+        key.0
     }
 }
 
-impl Into<Vec<u8>> for Key {
-    fn into(self) -> Vec<u8> {
-        self.0.to_vec()
+impl From<Key> for Vec<u8> {
+    fn from(key: Key) -> Vec<u8> {
+        key.0.to_vec()
     }
 }
 

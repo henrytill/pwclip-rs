@@ -14,7 +14,7 @@ extern crate unicode_segmentation;
 
 use clear_on_drop::clear::Clear;
 use hmac_drbg::HmacDRBG;
-use rust_scrypt::{scrypt, ScryptParams};
+use rust_scrypt::ScryptParams;
 use serde::Deserialize;
 use sha2::Sha512;
 use typenum::U64;
@@ -72,7 +72,7 @@ impl PWM {
             drbg.generate::<U64>(None)
                 .into_iter()
                 .filter(|r| (*r as usize) < 256 - (256 % charset_len))
-                .map(|r| charset_graphemes[r as usize % charset_len])
+                .map(|x| charset_graphemes[x as usize % charset_len])
                 .take(self.length - self.prefix.len())
                 .collect()
         };
@@ -94,7 +94,7 @@ impl Key {
     pub fn new(passphrase: &[u8]) -> Key {
         let params = ScryptParams::new(2 << 15, 8, 1);
         let mut buf = [0u8; 32];
-        scrypt(passphrase, b"pwclip", &params, &mut buf);
+        rust_scrypt::scrypt(passphrase, b"pwclip", &params, &mut buf);
         Key(buf)
     }
 }

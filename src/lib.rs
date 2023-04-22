@@ -29,7 +29,7 @@ pub struct Password(String);
 
 impl Drop for Password {
     fn drop(&mut self) {
-        self.0.clear();
+        Clear::clear(&mut self.0);
     }
 }
 
@@ -113,7 +113,7 @@ impl From<Key> for Vec<u8> {
 
 impl Drop for Key {
     fn drop(&mut self) {
-        self.0.clear();
+        Clear::clear(&mut self.0);
     }
 }
 

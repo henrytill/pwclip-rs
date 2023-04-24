@@ -1,5 +1,3 @@
-#[cfg(test)]
-extern crate anyhow;
 extern crate clear_on_drop;
 #[cfg(test)]
 extern crate data_encoding;
@@ -119,7 +117,6 @@ impl Drop for Key {
 
 #[cfg(test)]
 mod test {
-    use anyhow::{anyhow, Result};
     use data_encoding::HEXLOWER;
     use toml::Value::{self, Table};
 
@@ -132,6 +129,17 @@ mod test {
     const TEST_URL: &str = "example.com";
 
     const TEST_USERNAME: &str = "example@example.com";
+
+    #[derive(Debug)]
+    struct Error {}
+
+    impl std::fmt::Display for Error {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{:?}", self)
+        }
+    }
+
+    impl std::error::Error for Error {}
 
     struct Test<'a> {
         pwm: PWM,
@@ -245,7 +253,7 @@ mod test {
     }
 
     #[test]
-    fn test_keys() -> Result<()> {
+    fn test_keys() -> Result<(), Box<dyn std::error::Error>> {
         let key_tests = [
             KeyTest {
                 passphrase: &[],
@@ -295,7 +303,7 @@ mod test {
     }
 
     #[test]
-    fn construct_pwm_test() -> Result<()> {
+    fn construct_pwm_test() -> Result<(), Box<dyn std::error::Error>> {
         let config = r#"
             [example]
             url = 'example.com'
@@ -314,7 +322,7 @@ mod test {
             }
             Ok(())
         } else {
-            Err(anyhow!("config is not a table"))
+            Err(Box::new(Error {}))
         }
     }
 }
